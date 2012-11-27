@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vdate ---A lightweight jQuery datepicker plugin</title>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="style.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="formalize.css" rel="stylesheet" type="text/css"/>
+  </head>
+  <body>
+
+
+    <p class="owner">A <a href="http://www.vikingmute.com" title="">Viking</a> project</p>
+    <h1> Vdate --- <i>A lightweight jQuery datepicker plugin</i> </h1>
+    <p><h2>Reasons to use:</h2>
+        <ol>
+        <li>Small(3kb after gzip)</li>
+        <li>Easy to deploy</li>
+        <li>CSS3 Style and transform</li>
+        <li>Mutilple skins</li>
+        <li>Language support</li>
+        <li>I just wanna to make it simple- no tons of paramters</li>
+        </ol>
+    </p>
+    
+    <h2>Fire in the hole</h2>
+    
+    <p><input type="text" id="stest" placeholder="check it out"/></p>
+    
+  </div>
+    <input type="button" id="runtest" value="开始测试"/>
+    <div class="contain">
+      <div class="collapsed">
+        <h2>Result below</h2>
+      </div>
+
+    </div>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js'></script>
+    <script src='vdate.js'></script>
+    <script>
+        $(document).ready(function(){
+            $('#stest').vdate();
+        })
+    </script>
+  </body>
+</html>
