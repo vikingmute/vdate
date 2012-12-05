@@ -38,6 +38,7 @@ var language = {
 		cal_prev_month_label:'Prev'
 	}
 }
+
 var now = new Date(),
 	today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
 	now_time = +now,
@@ -95,15 +96,14 @@ var vcalendar = (function(){
 	
 	//generate html table functions
 	var generateTable = (function(){
-		var start, month, year, starting_day, month_length, month_name, day, len, date_time;
-		var container = $('<div class="calendar_inner" style="width:'+settings.width+'px;"></div>');
+		var start, month, year, starting_day, month_length, month_name, day, len, date_time, options,container;
 		var initPara = function(para){
 			start = para;
 			month = start.getMonth();
 			year = start.getFullYear();
 			starting_day = start.getDay(); // Hacking this to make Monday the first day
 			month_length = getDaysNum(year, month);
-			month_name = language[settings.lan].cal_months_labels[month];
+			month_name = language[options.lan].cal_months_labels[month];
 			day = start.getDate();
 			len = Math.ceil((month_length + starting_day) / 7);
 			date_time = +start;
@@ -113,12 +113,13 @@ var vcalendar = (function(){
 			container.find('h3').html( month_name +' ' +year);
 			container.find('.days_table').remove();
 			container.append(formatBody());
+			$('.calendar').height(container.height() + 12);
 		}
 		var formatTop = function(){
 			var html = '<div class="calendar_month">'
-							+ '<a href="###" class="pre_month">'+language[settings.lan].cal_prev_month_label+'</a>' 
+							+ '<a href="###" class="pre_month">'+language[options.lan].cal_prev_month_label+'</a>' 
 							+ '<h3>'+ month_name +' ' +year +'</h3>' 
-							+ '<a href="###" class="next_month">'+language[settings.lan].cal_next_month_label+'</a>' 
+							+ '<a href="###" class="next_month">'+language[options.lan].cal_next_month_label+'</a>' 
 						+'</div>';
 			html += '<table class="calendar_day week_table'
 				+ '" cellspacing="0" cellpadding="0" data-month="'
@@ -179,7 +180,9 @@ var vcalendar = (function(){
 			return html;
 		}
 		return {
-			fireUp:function(para){
+			fireUp:function(para,opts){
+				options = opts;
+				container = $('<div class="calendar_inner" style="width:'+options.width+'px;"></div>');
 				initPara(para);
 				container.append(formatTop());
 				container.append(formatBody());
@@ -194,7 +197,7 @@ var vcalendar = (function(){
 			}
 		}
 	})()
-
+	//magic events here
 	var bindEvents = function(){
 		$(document).bind('click',function(e){
 			var $target = $(e.target);
@@ -231,26 +234,28 @@ var vcalendar = (function(){
 		triggerElm:'',
 		tableObj:'',
 		//to start it off
-		init:function(start,triggerElm){
+		init:function(start,triggerElm,options){
 			this.holder = $('<div class="calendar"></div>');
+			this.holder.addClass(options.theme);
 			this.triggerElm = triggerElm;
 			$('body').append(this.holder);
-			this.tableObj = generateTable.fireUp(start)
+			this.tableObj = generateTable.fireUp(start,options)
 			this.holder.html(this.tableObj.rawHtml());
 			bindEvents();
 			return this;
 		},
 		open:function(style){
+			this.holder.css('border','1px solid #ccc');
 			this.holder.css('visibility','visible');
 			this.holder.css(style);
 		},
 		close:function(){
+			this.holder.css('border','0px');
 			this.holder.css({'height':0});
-			var delayHide = $.proxy(function(){
-				this.holder.css({'visibility':'hidden'});
-				//this.holder.remove();
-			},this)
-			setTimeout(delayHide,350);
+			//this.holder.css({'visibility':'hidden'});
+			//this.holder.remove();
+
+
 		}
 	}
 
@@ -259,17 +264,18 @@ var vcalendar = (function(){
 
 
 
-$.fn.vdate = function( options ) {
-	var opts = $.extend({},settings,options);
+$.fn.vdate = function( userOpt ) {
+	var options = $.extend({},settings,userOpt);
+	console.log(userOpt);
 	return this.each(function() {
 		var self = $(this);
 		self.val(timeHelper.next(0));
 		var start = timeHelper.nextMonth(0);
-		var vobj = vcalendar.init(start,self);
+		var vobj = vcalendar.init(start,self,options);
 		self.bind('click',function(e){
 			var otop = self.offset().top + self.height() + 10;
 			var oleft = self.offset().left;
-			var wh = $('.calendar_inner').height() + 10;
+			var wh = $('.calendar_inner').height() + 12;
 			vobj.open({'height':wh,'top':otop,'left':oleft});
 			e.preventDefault();
 		})
