@@ -15,3 +15,4 @@ Reasons to use this script
 
 to be continued...really wanna make it big
 
+testing remote commit from fedora
