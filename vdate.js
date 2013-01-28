@@ -13,11 +13,12 @@
 
 //defualt settings
 var settings = {
-	lan:"ch",
+	lan:"en",
 	width:250,
-	disablePrev:false,
-	fillInWithToday:true,
-	theme:'metro'
+	disablePrev:true,
+	theme:'zendark',
+	minDate:'',
+	maxDate:''
 }
 //language settings
 var language = {
@@ -38,7 +39,6 @@ var language = {
 		cal_prev_month_label:'Prev'
 	}
 }
-
 var now = new Date(),
 	today = new Date(now.getFullYear(), now.getMonth(), now.getDate()),
 	now_time = +now,
@@ -113,7 +113,7 @@ var vcalendar = (function(){
 			container.find('h3').html( month_name +' ' +year);
 			container.find('.days_table').remove();
 			container.append(formatBody());
-			$('.calendar').height(container.height() + 12);
+			$('.calendar').height(container.outerHeight());
 		}
 		var formatTop = function(){
 			var html = '<div class="calendar_month">'
@@ -197,8 +197,15 @@ var vcalendar = (function(){
 			}
 		}
 	})()
+	var toggleSwitchLable = function(klass,status){
+		if(status == 'off'){
+			vcalendar.holder.find(klass).css('visibility','hidden');
+		}else{
+			vcalendar.holder.find(klass).css('visibility','visible');
+		}
+	}
 	//magic events here
-	var bindEvents = function(){
+	var bindEvents = function(options){
 		$(document).bind('click',function(e){
 			var $target = $(e.target);
 			if($target.parents('.calendar').length == 0 && !$target.is(vcalendar.triggerElm)){
@@ -216,12 +223,20 @@ var vcalendar = (function(){
 		})
 		$('.calendar .next_month').bind('click',function(e){
 			monthCounter++;
+			if(options.disablePrev){
+				toggleSwitchLable('.pre_month','on');
+			}
 			var next = timeHelper.nextMonth(monthCounter);
 			vcalendar.tableObj.change(next);
 			e.preventDefault();
 		})
 		$('.calendar .pre_month').bind('click',function(e){
 			monthCounter--;
+			if(options.disablePrev){
+				if(monthCounter == 0){
+					toggleSwitchLable('.pre_month','off');
+				}
+			}
 			var prev = timeHelper.nextMonth(monthCounter);
 			vcalendar.tableObj.change(prev);
 			e.preventDefault();
@@ -239,9 +254,12 @@ var vcalendar = (function(){
 			this.holder.addClass(options.theme);
 			this.triggerElm = triggerElm;
 			$('body').append(this.holder);
-			this.tableObj = generateTable.fireUp(start,options)
+			this.tableObj = generateTable.fireUp(start,options);
 			this.holder.html(this.tableObj.rawHtml());
-			bindEvents();
+			if(options.disablePrev){
+				toggleSwitchLable('.pre_month','off');
+			}
+			bindEvents(options);
 			return this;
 		},
 		open:function(style){
@@ -266,7 +284,6 @@ var vcalendar = (function(){
 
 $.fn.vdate = function( userOpt ) {
 	var options = $.extend({},settings,userOpt);
-	console.log(userOpt);
 	return this.each(function() {
 		var self = $(this);
 		self.val(timeHelper.next(0));
@@ -275,7 +292,7 @@ $.fn.vdate = function( userOpt ) {
 		self.bind('click',function(e){
 			var otop = self.offset().top + self.height() + 10;
 			var oleft = self.offset().left;
-			var wh = $('.calendar_inner').height() + 12;
+			var wh = $('.calendar_inner').outerHeight();
 			vobj.open({'height':wh,'top':otop,'left':oleft});
 			e.preventDefault();
 		})
